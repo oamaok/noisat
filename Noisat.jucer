@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="uD87Y9" name="Noisat" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+  <MAINGROUP id="u9BECT" name="Noisat">
+    <GROUP id="{F55BE7F9-C3F9-26F6-D79F-4CA49A1C4274}" name="Assets">
+      <FILE id="PyScAq" name="GemunuLibre-Bold.ttf" compile="0" resource="1"
+            file="Assets/Fonts/GemunuLibre-Bold.ttf"/>
+      <FILE id="VhX6Mn" name="GemunuLibre-Light.ttf" compile="0" resource="1"
+            file="Assets/Fonts/GemunuLibre-Light.ttf"/>
+      <FILE id="hvzGsy" name="GemunuLibre-Regular.ttf" compile="0" resource="1"
+            file="Assets/Fonts/GemunuLibre-Regular.ttf"/>
+      <FILE id="qWHK2T" name="Knob.png" compile="0" resource="1" file="Assets/Images/Knob.png"/>
+    </GROUP>
+    <GROUP id="{5018D334-64E1-7CA7-B0E7-05FEC56D7E18}" name="Source">
+      <FILE id="swtVXh" name="ClippingCurve.cpp" compile="1" resource="0"
+            file="Source/ClippingCurve.cpp"/>
+      <FILE id="nrlQje" name="ClippingCurve.h" compile="0" resource="0" file="Source/ClippingCurve.h"/>
+      <FILE id="aTvqjS" name="NoisatLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/NoisatLookAndFeel.cpp"/>
+      <FILE id="gnuAqO" name="NoisatLookAndFeel.h" compile="0" resource="0"
+            file="Source/NoisatLookAndFeel.h"/>
+      <FILE id="r1RSg1" name="Panel.cpp" compile="1" resource="0" file="Source/Panel.cpp"/>
+      <FILE id="lDrmzF" name="Panel.h" compile="0" resource="0" file="Source/Panel.h"/>
+      <FILE id="CtTG0E" name="FontManager.cpp" compile="1" resource="0" file="Source/FontManager.cpp"/>
+      <FILE id="CoR6gN" name="FontManager.h" compile="0" resource="0" file="Source/FontManager.h"/>
+      <FILE id="P3CbsZ" name="NoiseColorEditor.cpp" compile="1" resource="0"
+            file="Source/NoiseColorEditor.cpp"/>
+      <FILE id="okHiL1" name="NoiseColorEditor.h" compile="0" resource="0"
+            file="Source/NoiseColorEditor.h"/>
+      <FILE id="k0ZMbM" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="dgr8g5" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="mS5Sgm" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="HRyo3Y" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Noisat"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Noisat"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
