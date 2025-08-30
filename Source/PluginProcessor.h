@@ -88,7 +88,8 @@ public:
 
 private:
     juce::Random noiseGen;
-
+    std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
+    const size_t oversamplingFactor = 1;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoisatAudioProcessor)
 };

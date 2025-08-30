@@ -111,7 +111,7 @@ NoiseColorEditor::NoiseColorEditor(NoisatAudioProcessor& p) : audioProcessor(p),
     controlPointAttachments.push_back(new ControlPointAttachment(*lpControlPoint, *p.noiseEq.lpFreq, *p.noiseEq.lpQ));
     controlPointAttachments.push_back(new ControlPointAttachment(*hpControlPoint, *p.noiseEq.hpFreq, *p.noiseEq.hpQ));
 
-    for (auto controlPoint : controlPoints) {
+    for (auto& controlPoint : controlPoints) {
         addAndMakeVisible(controlPoint);
     }
 }
@@ -119,7 +119,7 @@ NoiseColorEditor::NoiseColorEditor(NoisatAudioProcessor& p) : audioProcessor(p),
 NoiseColorEditor::~NoiseColorEditor() {}
 
 void NoiseColorEditor::resized() {
-    for (auto controlPoint : controlPoints) {
+    for (auto& controlPoint : controlPoints) {
         controlPoint->setBounds(getLocalBounds().withTrimmedBottom(2));
     }
 }
@@ -139,13 +139,13 @@ void NoiseColorEditor::paint(juce::Graphics& g) {
     {
         int eqWidth = bounds.getWidth();
 
-        double* freqs = new double[eqWidth];
-        double* magnitudes = new double[eqWidth];
+        std::vector<double> freqs(eqWidth);
+        std::vector<double> magnitudes(eqWidth);
 
         for (int i = 0; i < eqWidth; i++) {
             freqs[i] = audioProcessor.noiseEq.hpFreq->convertFrom0to1((float)i / (float) eqWidth);
         }
-        audioProcessor.noiseEq.getMagnitude(freqs, magnitudes, eqWidth);
+        audioProcessor.noiseEq.getMagnitude(freqs.data(), magnitudes.data(), eqWidth);
         // TODO: Draw freqency gridlines
 
 
@@ -161,9 +161,6 @@ void NoiseColorEditor::paint(juce::Graphics& g) {
                 eqCurve.lineTo(x, y);
             }
         }
-
-        delete[] freqs;
-        delete[] magnitudes;
 
         juce::Path eqCurveBackground(eqCurve);
         eqCurveBackground.lineTo(bounds.getWidth(), bounds.getHeight());

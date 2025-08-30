@@ -102,19 +102,16 @@ void DoubleIIR::prepare(juce::dsp::ProcessSpec sp) {
 }
 
 void DoubleIIR::getMagnitude(const double* frequencies, double* magnitudes, size_t numSamples) {
-    double* hpResponse = new double[numSamples];
-    double* lpResponse = new double[numSamples];
+    std::vector<double> hpResponse(numSamples);
+    std::vector<double> lpResponse(numSamples);
 
-    hpCoeffs.get()->getMagnitudeForFrequencyArray(frequencies, hpResponse, numSamples, spec.sampleRate);
-    lpCoeffs.get()->getMagnitudeForFrequencyArray(frequencies, lpResponse, numSamples, spec.sampleRate);
+    hpCoeffs.get()->getMagnitudeForFrequencyArray(frequencies, hpResponse.data(), numSamples, spec.sampleRate);
+    lpCoeffs.get()->getMagnitudeForFrequencyArray(frequencies, lpResponse.data(), numSamples, spec.sampleRate);
 
     // TODO: Could be SIMDed...
     for (size_t i = 0; i < numSamples; i++) {
         magnitudes[i] = hpResponse[i] * lpResponse[i];
     }
-
-    delete[] hpResponse;
-    delete[] lpResponse;
 }
 
 Clipper::Clipper() {
@@ -135,16 +132,11 @@ float Clipper::evaluate(float sample) {
 
 //==============================================================================
 NoisatAudioProcessor::NoisatAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
-#endif
+    : AudioProcessor (
+        BusesProperties()
+            .withInput("Input", juce::AudioChannelSet::stereo(), true)
+            .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+    )
 {
     noiseThres = new juce::AudioParameterFloat("noiseThres", "Noise Threshold", 0.01f, 1.0f, 0.5f);
 
@@ -236,8 +228,17 @@ void NoisatAudioProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void NoisatAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    size_t numCh = std::max(getTotalNumOutputChannels(), getTotalNumInputChannels());
+
+    oversampling = std::make_unique<juce::dsp::Oversampling<float>>(
+        numCh,
+        oversamplingFactor,
+        juce::dsp::Oversampling<float>::FilterType::filterHalfBandPolyphaseIIR
+    );
+    oversampling->initProcessing(samplesPerBlock * (1 << oversamplingFactor));
+
     juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
+    spec.sampleRate = sampleRate * (1 << oversamplingFactor);
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getNumInputChannels();
 
@@ -297,25 +298,31 @@ void NoisatAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     auto postGainFactor = postGain->get();
     auto dryWetFactor = dryWet->get();
 
+
+    juce::dsp::AudioBlock<float> inputBlock{ buffer };
+    juce::dsp::ProcessContextReplacing<float> inputContext{ inputBlock };
+
+    auto oversampledBlock = oversampling->processSamplesUp(inputContext.getInputBlock());
+    auto numSamples = oversampledBlock.getNumSamples();
+
     // TODO: Make member of the class to avoid unnecessary allocations?
     // TODO: Stereo noise?
-    std::vector<float> noiseBuf = std::vector<float>(buffer.getNumSamples());
+    std::vector<float> noiseBuf(numSamples);
 
-    for (int i = 0; i < buffer.getNumSamples(); i++) {
+    for (int i = 0; i < numSamples; i++) {
         float noise = noiseGen.nextFloat();
         noise = noiseEq.processSample(noise);
         noiseBuf[i] = noise;
     }
 
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // TODO: Better range checking?
+    for (int channel = 0; channel < 2; ++channel)
     {
         if (totalNumOutputChannels < channel) break;
 
-        float* output = buffer.getWritePointer(channel);
-        const float* input = buffer.getReadPointer(channel);
-
-        for (auto i = 0; i < buffer.getNumSamples(); i++) {
-            float sample = input[i] * preGainFactor;
+        for (auto i = 0; i < numSamples; i++) {
+            float sample = oversampledBlock.getSample(channel, i);
+            sample *= preGainFactor;
             float clipped = clipper.evaluate(sample);
 
             float amountClipped = std::abs(clipped - sample);
@@ -323,9 +330,15 @@ void NoisatAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                 clipped += std::copysignf(amountClipped - noiseThreshold, clipped) * noiseBuf[i];
             }
 
-            output[i] = sample * dryWetFactor + (1.0f - dryWetFactor) * clipped * postGainFactor;
+            float output = sample * dryWetFactor + (1.0f - dryWetFactor) * clipped;
+            output *= postGainFactor;
+
+            oversampledBlock.setSample(channel, i, output);
         }
     }
+    inputContext.getOutputBlock().clear();
+
+    oversampling->processSamplesDown(inputContext.getOutputBlock());
 }
 
 //==============================================================================
