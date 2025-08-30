@@ -1,15 +1,16 @@
 #pragma once
 
-#include <JuceHeader.h>
-#include "PluginProcessor.h"
+#include "ClippingCurve.h"
 #include "NoiseColorEditor.h"
 #include "Panel.h"
-#include "ClippingCurve.h"
+#include "PluginProcessor.h"
+#include <JuceHeader.h>
 
 struct GeneralControlsPanel : public Panel {
 public:
     GeneralControlsPanel(NoisatAudioProcessor&);
     void resized() override;
+
 private:
     juce::Slider preGain;
     juce::SliderParameterAttachment preGainAttch;
@@ -25,6 +26,7 @@ struct ClipControlPanel : public Panel {
 public:
     ClipControlPanel(NoisatAudioProcessor&);
     void resized() override;
+
 private:
     ClippingCurve clippingCurve;
 
@@ -45,6 +47,7 @@ struct NoiseControlPanel : public Panel {
 public:
     NoiseControlPanel(NoisatAudioProcessor&);
     void resized() override;
+
 private:
     NoiseColorEditor noiseColorEditor;
 
@@ -61,14 +64,13 @@ private:
     juce::SliderParameterAttachment noiseLpQAttch;
 };
 
-class NoisatAudioProcessorEditor  : public juce::AudioProcessorEditor
-{
+class NoisatAudioProcessorEditor : public juce::AudioProcessorEditor {
 public:
-    NoisatAudioProcessorEditor (NoisatAudioProcessor&);
+    NoisatAudioProcessorEditor(NoisatAudioProcessor&);
     ~NoisatAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
 private:
@@ -80,5 +82,5 @@ private:
     ClipControlPanel clipControlPanel;
     NoiseControlPanel noiseControlPanel;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoisatAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoisatAudioProcessorEditor)
 };

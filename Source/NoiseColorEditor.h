@@ -1,10 +1,9 @@
 #pragma once
 
-#include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include <JuceHeader.h>
 
-template <typename Emitter>
-class ControlPointListener {
+template <typename Emitter> class ControlPointListener {
 public:
     virtual ~ControlPointListener() = default;
     virtual void controlPointValueChanged(Emitter*) = 0;
@@ -30,6 +29,7 @@ public:
     void removeListener(ControlPointListener<ControlPoint>* listener);
 
     juce::Point<float> position;
+
 private:
     bool isDragged;
     juce::ListenerList<ControlPointListener<ControlPoint>> listeners;
@@ -38,11 +38,14 @@ private:
 
 class ControlPointAttachment : private ControlPointListener<ControlPoint> {
 public:
-    ControlPointAttachment(ControlPoint& cp, juce::AudioParameterFloat& xParam, juce::AudioParameterFloat& yParam);
+    ControlPointAttachment(
+        ControlPoint& cp, juce::AudioParameterFloat& xParam,
+        juce::AudioParameterFloat& yParam
+    );
     ControlPointAttachment(const ControlPointAttachment&) = delete;
     ~ControlPointAttachment();
-private:
 
+private:
     void controlPointValueChanged(ControlPoint*) override;
     void controlPointDragStarted(ControlPoint*) override {
         xParamAttachment.beginGesture();
@@ -78,8 +81,10 @@ public:
 
 private:
     NoisatAudioProcessor& audioProcessor;
-    std::vector<ControlPoint*> controlPoints;
-    std::vector<ControlPointAttachment*> controlPointAttachments;
+    ControlPoint hpControl;
+    ControlPointAttachment hpControlAttch;
+    ControlPoint lpControl;
+    ControlPointAttachment lpControlAttch;
 
     ControlPoint* currentControlPoint;
 };

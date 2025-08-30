@@ -2,20 +2,25 @@
 
 #include <JuceHeader.h>
 
-class DoubleIIR : public juce::AudioProcessorParameter::Listener, public juce::AsyncUpdater {
+class DoubleIIR : public juce::AudioProcessorParameter::Listener,
+                  public juce::AsyncUpdater {
 public:
     using Param = juce::AudioParameterFloat;
     DoubleIIR();
     ~DoubleIIR();
-    
+
     void parameterValueChanged(int parameterIndex, float newValue) override;
-    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override {};
+    void parameterGestureChanged(
+        int parameterIndex, bool gestureIsStarting
+    ) override {};
     void handleAsyncUpdate() override;
 
     void prepare(juce::dsp::ProcessSpec spec);
     float processSample(float sample);
 
-    void getMagnitude(const double* frequencies, double* magnitudes, size_t numSamples);
+    void getMagnitude(
+        const double* frequencies, double* magnitudes, size_t numSamples
+    );
 
     juce::AudioParameterFloat* hpFreq;
     juce::AudioParameterFloat* hpQ;
@@ -29,8 +34,10 @@ public:
 private:
     juce::dsp::ProcessSpec spec;
 
-    juce::ReferenceCountedObjectPtr<juce::dsp::IIR::Coefficients<float>> hpCoeffs;
-    juce::ReferenceCountedObjectPtr<juce::dsp::IIR::Coefficients<float>> lpCoeffs;
+    juce::ReferenceCountedObjectPtr<juce::dsp::IIR::Coefficients<float>>
+        hpCoeffs;
+    juce::ReferenceCountedObjectPtr<juce::dsp::IIR::Coefficients<float>>
+        lpCoeffs;
 };
 
 class Clipper {
@@ -43,20 +50,19 @@ public:
     juce::AudioParameterFloat* ratio;
 };
 
-class NoisatAudioProcessor : public juce::AudioProcessor
-{
+class NoisatAudioProcessor : public juce::AudioProcessor {
 public:
     NoisatAudioProcessor();
     ~NoisatAudioProcessor() override;
 
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#ifndef JucePlugin_PreferredChannelConfigurations
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+#endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -70,12 +76,12 @@ public:
 
     int getNumPrograms() override;
     int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
-    void changeProgramName (int index, const juce::String& newName) override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
 
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
 
     juce::AudioParameterFloat* noiseThres;
 
@@ -91,5 +97,5 @@ private:
     std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
     const size_t oversamplingFactor = 1;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoisatAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoisatAudioProcessor)
 };

@@ -6,7 +6,9 @@ void ControlPoint::addListener(ControlPointListener<ControlPoint>* listener) {
     listeners.add(listener);
 }
 
-void ControlPoint::removeListener(ControlPointListener<ControlPoint>* listener) {
+void ControlPoint::removeListener(
+    ControlPointListener<ControlPoint>* listener
+) {
     listeners.remove(listener);
 }
 
@@ -26,18 +28,25 @@ void ControlPoint::setYValue(float value) {
 
 bool ControlPoint::hitTest(int x, int y) {
     auto bounds = getLocalBounds().toFloat();
-    return juce::Point<int>(x, y).toFloat().getDistanceFrom(bounds.getRelativePoint<float>(position.x, position.y)) < 5.0f;
+    return juce::Point<int>(x, y).toFloat().getDistanceFrom(
+               bounds.getRelativePoint<float>(position.x, position.y)
+           )
+        < 5.0f;
 }
 
 void ControlPoint::mouseDown(const juce::MouseEvent& event) {
     startPosition = position;
     isDragged = true;
-    listeners.call([this](ControlPointListener<ControlPoint>& l) { l.controlPointDragStarted(this); });
+    listeners.call([this](ControlPointListener<ControlPoint>& l) {
+        l.controlPointDragStarted(this);
+    });
 }
 
 void ControlPoint::mouseUp(const juce::MouseEvent& event) {
     if (isDragged) {
-        listeners.call([this](ControlPointListener<ControlPoint>& l) { l.controlPointDragEnded(this); });
+        listeners.call([this](ControlPointListener<ControlPoint>& l) {
+            l.controlPointDragEnded(this);
+        });
     }
 
     isDragged = false;
@@ -47,19 +56,31 @@ void ControlPoint::mouseDrag(const juce::MouseEvent& event) {
     if (!isDragged) return;
     auto bounds = getLocalBounds().toFloat();
 
-    auto nextPos = startPosition + event.getOffsetFromDragStart().toFloat().transformedBy(juce::AffineTransform::scale(1.0f / bounds.getWidth(), 1.0f / bounds.getHeight()));
+    auto nextPos = startPosition
+        + event.getOffsetFromDragStart().toFloat().transformedBy(
+            juce::AffineTransform::scale(
+                1.0f / bounds.getWidth(), 1.0f / bounds.getHeight()
+            )
+        );
 
     setXValue(nextPos.x);
     setYValue(nextPos.y);
 
-    listeners.call([this](ControlPointListener<ControlPoint>& l) { l.controlPointValueChanged(this); });
+    listeners.call([this](ControlPointListener<ControlPoint>& l) {
+        l.controlPointValueChanged(this);
+    });
 }
 
 void ControlPoint::paint(juce::Graphics& g) {
     auto bounds = getLocalBounds();
 
     juce::Path cpPath;
-    cpPath.addEllipse(position.x * bounds.getWidth() - 5.0f, position.y * bounds.getHeight() - 5.0f, 10.0f, 10.0f);
+    cpPath.addEllipse(
+        position.x * bounds.getWidth() - 5.0f,
+        position.y * bounds.getHeight() - 5.0f,
+        10.0f,
+        10.0f
+    );
 
     g.setColour(juce::Colour::fromRGB(0x44, 0x44, 0x44));
     g.fillPath(cpPath);
@@ -68,14 +89,21 @@ void ControlPoint::paint(juce::Graphics& g) {
     g.strokePath(cpPath, juce::PathStrokeType(2.0f));
 }
 
-ControlPointAttachment::ControlPointAttachment(ControlPoint& cp, juce::AudioParameterFloat& xp, juce::AudioParameterFloat& yp)
-    : controlPoint(cp),
-    xParam(xp),
-    yParam(yp),
-    xParamAttachment(xParam, [this](float f) { setXValue(xParam.convertTo0to1(f)); }, nullptr),
-    yParamAttachment(yParam, [this](float f) { setYValue(1.0f - yParam.convertTo0to1(f)); }, nullptr),
-    ignoreCallbacks(false)
-{
+ControlPointAttachment::ControlPointAttachment(
+    ControlPoint& cp, juce::AudioParameterFloat& xp,
+    juce::AudioParameterFloat& yp
+)
+    : controlPoint(cp), xParam(xp), yParam(yp),
+      xParamAttachment(
+          xParam, [this](float f) { setXValue(xParam.convertTo0to1(f)); },
+          nullptr
+      ),
+      yParamAttachment(
+          yParam,
+          [this](float f) { setYValue(1.0f - yParam.convertTo0to1(f)); },
+          nullptr
+      ),
+      ignoreCallbacks(false) {
     xParamAttachment.sendInitialUpdate();
     yParamAttachment.sendInitialUpdate();
     cp.addListener(this);
@@ -97,31 +125,28 @@ void ControlPointAttachment::setYValue(float value) {
 
 void ControlPointAttachment::controlPointValueChanged(ControlPoint* cp) {
     if (!ignoreCallbacks) {
-        xParamAttachment.setValueAsPartOfGesture(xParam.convertFrom0to1(cp->position.x));
-        yParamAttachment.setValueAsPartOfGesture(yParam.convertFrom0to1(1.0f - cp->position.y));
+        xParamAttachment.setValueAsPartOfGesture(
+            xParam.convertFrom0to1(cp->position.x)
+        );
+        yParamAttachment.setValueAsPartOfGesture(
+            yParam.convertFrom0to1(1.0f - cp->position.y)
+        );
     }
 }
 
-NoiseColorEditor::NoiseColorEditor(NoisatAudioProcessor& p) : audioProcessor(p), currentControlPoint(nullptr) {
-    auto lpControlPoint = new ControlPoint();
-    auto hpControlPoint = new ControlPoint();
-
-    controlPoints.push_back(lpControlPoint);
-    controlPoints.push_back(hpControlPoint);
-    controlPointAttachments.push_back(new ControlPointAttachment(*lpControlPoint, *p.noiseEq.lpFreq, *p.noiseEq.lpQ));
-    controlPointAttachments.push_back(new ControlPointAttachment(*hpControlPoint, *p.noiseEq.hpFreq, *p.noiseEq.hpQ));
-
-    for (auto& controlPoint : controlPoints) {
-        addAndMakeVisible(controlPoint);
-    }
+NoiseColorEditor::NoiseColorEditor(NoisatAudioProcessor& p)
+    : audioProcessor(p), currentControlPoint(nullptr),
+      hpControlAttch(hpControl, *p.noiseEq.hpFreq, *p.noiseEq.hpQ),
+      lpControlAttch(lpControl, *p.noiseEq.lpFreq, *p.noiseEq.lpQ) {
+    addAndMakeVisible(hpControl);
+    addAndMakeVisible(lpControl);
 }
 
 NoiseColorEditor::~NoiseColorEditor() {}
 
 void NoiseColorEditor::resized() {
-    for (auto& controlPoint : controlPoints) {
-        controlPoint->setBounds(getLocalBounds().withTrimmedBottom(2));
-    }
+    hpControl.setBounds(getLocalBounds().withTrimmedBottom(2));
+    lpControl.setBounds(getLocalBounds().withTrimmedBottom(2));
 }
 
 void NoiseColorEditor::paint(juce::Graphics& g) {
@@ -143,17 +168,21 @@ void NoiseColorEditor::paint(juce::Graphics& g) {
         std::vector<double> magnitudes(eqWidth);
 
         for (int i = 0; i < eqWidth; i++) {
-            freqs[i] = audioProcessor.noiseEq.hpFreq->convertFrom0to1((float)i / (float) eqWidth);
+            freqs[i] = audioProcessor.noiseEq.hpFreq->convertFrom0to1(
+                (float)i / (float)eqWidth
+            );
         }
-        audioProcessor.noiseEq.getMagnitude(freqs.data(), magnitudes.data(), eqWidth);
+        audioProcessor.noiseEq.getMagnitude(
+            freqs.data(), magnitudes.data(), eqWidth
+        );
         // TODO: Draw freqency gridlines
-
 
         juce::Path eqCurve;
         for (int i = 0; i < eqWidth; i++) {
             float x = (float)i;
             float db = std::log((float)magnitudes[i]) / std::log(10.0f) * 0.5f;
-            float y = (float)bounds.getHeight() - (db + 1.0f) * 0.5f * (float)bounds.getHeight();
+            float y = (float)bounds.getHeight()
+                - (db + 1.0f) * 0.5f * (float)bounds.getHeight();
 
             if (i == 0) {
                 eqCurve.startNewSubPath(x, y);

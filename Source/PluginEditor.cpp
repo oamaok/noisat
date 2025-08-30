@@ -1,13 +1,13 @@
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
+
 #include "FontManager.h"
 #include "NoisatLookAndFeel.h"
+#include "PluginProcessor.h"
 
-GeneralControlsPanel::GeneralControlsPanel(NoisatAudioProcessor& audioProcessor) :
-    preGainAttch(*audioProcessor.preGain, preGain),
-    postGainAttch(*audioProcessor.postGain, postGain),
-    dryWetAttch(*audioProcessor.dryWet, dryWet)
-{
+GeneralControlsPanel::GeneralControlsPanel(NoisatAudioProcessor& audioProcessor)
+    : preGainAttch(*audioProcessor.preGain, preGain),
+      postGainAttch(*audioProcessor.postGain, postGain),
+      dryWetAttch(*audioProcessor.dryWet, dryWet) {
     auto knobs = std::vector<std::pair<const char*, juce::Slider*>>();
 
     knobs.push_back(std::make_pair("Pre", &preGain));
@@ -38,11 +38,10 @@ void GeneralControlsPanel::resized() {
 
 ClipControlPanel::ClipControlPanel(NoisatAudioProcessor& audioProcessor)
     : clipThresAttch(*audioProcessor.clipper.threshold, clipThres),
-    clipKneeAttch(*audioProcessor.clipper.knee, clipKnee),
-    clipRatioAttch(*audioProcessor.clipper.ratio, clipRatio),
-    noiseThresholdAttch(*audioProcessor.noiseThres, noiseThreshold),
-    clippingCurve(audioProcessor)
-{
+      clipKneeAttch(*audioProcessor.clipper.knee, clipKnee),
+      clipRatioAttch(*audioProcessor.clipper.ratio, clipRatio),
+      noiseThresholdAttch(*audioProcessor.noiseThres, noiseThreshold),
+      clippingCurve(audioProcessor) {
     setTitle("Clipping");
 
     auto knobs = std::vector<std::pair<const char*, juce::Slider*>>();
@@ -87,11 +86,10 @@ void ClipControlPanel::resized() {
 
 NoiseControlPanel::NoiseControlPanel(NoisatAudioProcessor& audioProcessor)
     : noiseColorEditor(audioProcessor),
-    noiseHpFreqAttch(*audioProcessor.noiseEq.hpFreq, noiseHpFreq),
-    noiseHpQAttch(*audioProcessor.noiseEq.hpQ, noiseHpQ),
-    noiseLpFreqAttch(*audioProcessor.noiseEq.lpFreq, noiseLpFreq),
-    noiseLpQAttch(*audioProcessor.noiseEq.lpQ, noiseLpQ)
-{
+      noiseHpFreqAttch(*audioProcessor.noiseEq.hpFreq, noiseHpFreq),
+      noiseHpQAttch(*audioProcessor.noiseEq.hpQ, noiseHpQ),
+      noiseLpFreqAttch(*audioProcessor.noiseEq.lpFreq, noiseLpFreq),
+      noiseLpQAttch(*audioProcessor.noiseEq.lpQ, noiseLpQ) {
     setTitle("Noise color");
 
     auto knobs = std::vector<std::pair<const char*, juce::Slider*>>();
@@ -134,13 +132,9 @@ void NoiseControlPanel::resized() {
     noiseColorEditor.setBounds(area);
 }
 
-NoisatAudioProcessorEditor::NoisatAudioProcessorEditor (NoisatAudioProcessor& p)
-    : AudioProcessorEditor (&p),
-    audioProcessor (p),
-    generalControlsPanel(p),
-    noiseControlPanel(p),
-    clipControlPanel(p)
-{
+NoisatAudioProcessorEditor::NoisatAudioProcessorEditor(NoisatAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p), generalControlsPanel(p),
+      noiseControlPanel(p), clipControlPanel(p) {
     setLookAndFeel(new NoisatLookAndFeel());
 
     addAndMakeVisible(generalControlsPanel);
@@ -152,13 +146,11 @@ NoisatAudioProcessorEditor::NoisatAudioProcessorEditor (NoisatAudioProcessor& p)
 
 NoisatAudioProcessorEditor::~NoisatAudioProcessorEditor() {}
 
-void NoisatAudioProcessorEditor::paint(juce::Graphics& g)
-{
+void NoisatAudioProcessorEditor::paint(juce::Graphics& g) {
     g.fillAll(juce::Colour::fromRGB(0x11, 0x11, 0x11));
 }
 
-void NoisatAudioProcessorEditor::resized()
-{
+void NoisatAudioProcessorEditor::resized() {
     auto area = getLocalBounds();
 
     generalControlsPanel.setBounds(area.removeFromLeft(80));

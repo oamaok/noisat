@@ -1,30 +1,24 @@
 #include "ClippingCurve.h"
 
-ClippingCurve::ClippingCurve(NoisatAudioProcessor& audioProcessor) : audioProcessor(audioProcessor) {
+ClippingCurve::ClippingCurve(NoisatAudioProcessor& audioProcessor)
+    : audioProcessor(audioProcessor) {
     audioProcessor.clipper.knee->addListener(this);
     audioProcessor.clipper.ratio->addListener(this);
     audioProcessor.clipper.threshold->addListener(this);
 }
 
-ClippingCurve::~ClippingCurve() {
-
-}
+ClippingCurve::~ClippingCurve() {}
 
 void ClippingCurve::parameterValueChanged(int parameterIndex, float newValue) {
-    if (juce::MessageManager::getInstance()->isThisTheMessageThread())
-    {
+    if (juce::MessageManager::getInstance()->isThisTheMessageThread()) {
         cancelPendingUpdate();
         handleAsyncUpdate();
-    }
-    else
-    {
+    } else {
         triggerAsyncUpdate();
     }
 }
 
-void ClippingCurve::handleAsyncUpdate() {
-    repaint();
-}
+void ClippingCurve::handleAsyncUpdate() { repaint(); }
 
 void ClippingCurve::paint(juce::Graphics& g) {
     g.setColour(juce::Colour::fromRGB(0x66, 0x66, 0x66));
@@ -48,8 +42,7 @@ void ClippingCurve::paint(juce::Graphics& g) {
 
         if (i == 0) {
             clipCurve.startNewSubPath(x, y);
-        }
-        else {
+        } else {
             clipCurve.lineTo(x, y);
         }
     }

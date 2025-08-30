@@ -5,6 +5,7 @@
 class FontManager {
 public:
     static juce::Font getFont(const char* fontName, float fontSize);
+
 private:
     FontManager();
     ~FontManager();

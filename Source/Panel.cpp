@@ -1,4 +1,5 @@
 #include "Panel.h"
+
 #include "FontManager.h"
 
 Panel::Panel(juce::BorderSize<float> m) : margin(m) {}
@@ -25,7 +26,9 @@ void Panel::paint(juce::Graphics& g) {
 
     // First fill the "dropshadow"
     g.setColour(juce::Colour::fromRGB(0x66, 0x66, 0x66));
-    g.fillRoundedRectangle(panelSize.translated(0, 2).toFloat(), cornerRounding);
+    g.fillRoundedRectangle(
+        panelSize.translated(0, 2).toFloat(), cornerRounding
+    );
 
     // Main background
     g.setColour(juce::Colour::fromRGB(0x44, 0x44, 0x44));
@@ -43,9 +46,16 @@ void Panel::paint(juce::Graphics& g) {
         juce::BorderSize<float> padding{ 4.0f, 8.0f, 4.0f, 4.0f };
         g.setFont(FontManager::getFont("GemunuLibre-Bold", 12.0f));
         g.setColour(juce::Colour::fromRGB(0x00, 0x00, 0x00));
-        g.drawText(title.toUpperCase(), padding.subtractedFrom(titleArea).translated(0.0f, 1.5f), juce::Justification::topLeft);
+        g.drawText(
+            title.toUpperCase(),
+            padding.subtractedFrom(titleArea).translated(0.0f, 1.5f),
+            juce::Justification::topLeft
+        );
         g.setColour(juce::Colour::fromRGB(0xff, 0xff, 0xff));
-        g.drawText(title.toUpperCase(), padding.subtractedFrom(titleArea), juce::Justification::topLeft);
-
+        g.drawText(
+            title.toUpperCase(),
+            padding.subtractedFrom(titleArea),
+            juce::Justification::topLeft
+        );
     }
 }
